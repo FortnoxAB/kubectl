@@ -9,6 +9,11 @@ function downloadClient {
 	chmod +x "$CLIENTS_PATH/$1"
 }
 
+if ! [ -x "$(command -v jq)" ]; then
+  echo 'Error: jq is not installed. Install it with your favorite package manager' >&2
+  exit 1
+fi
+
 #Download default client if we dont have it. To be able to ask the server for its version
 if [ ! -f "$DEFAULT_CLIENT" ]; then
 	downloadClient "$DEFAULT_VERSION"
