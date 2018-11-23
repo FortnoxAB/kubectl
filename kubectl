@@ -19,6 +19,11 @@ if [ ! -f "$DEFAULT_CLIENT" ]; then
 	downloadClient "$DEFAULT_VERSION"
 fi
 
+if [ "$1" == "config" ]; then
+	$DEFAULT_CLIENT "$@"
+	exit $?
+fi
+
 SERVER_VERSION=$($DEFAULT_CLIENT version -o json | jq ".serverVersion.gitVersion" -r | grep -Po "v\d+.\d+.\d+")
 CLIENT="$CLIENTS_PATH/$SERVER_VERSION"
 
