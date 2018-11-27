@@ -25,7 +25,7 @@ if grep -q "Unable to connect to the server" <<<"$VERSION_OUTPUT"; then
   echo -e "#WARNING: Wrapper unable to verify server version, using default version $DEFAULT_VERSION.\n"
   $DEFAULT_CLIENT "$@"
 else
-  $SERVER_VERSION=$(echo $VERSION_OUTPUT | jq ".serverVersion.gitVersion" -r | grep -Po "v\d+.\d+.\d+")
+  SERVER_VERSION=$(echo $VERSION_OUTPUT | jq ".serverVersion.gitVersion" -r | grep -Po "v\d+.\d+.\d+")
   CLIENT="$CLIENTS_PATH/$SERVER_VERSION"
   #Download client if we dont have it
   if [ ! -f "$CLIENT" ]; then
