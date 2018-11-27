@@ -19,18 +19,19 @@ if [ ! -f "$DEFAULT_CLIENT" ]; then
 	downloadClient "$DEFAULT_VERSION"
 fi
 
-if [ "$1" == "config" ]; then
-	$DEFAULT_CLIENT "$@"
-	exit $?
+VERSION_OUTPUT=$($DEFAULT_CLIENT version -o json 2>&1)
+if grep -q "Unable to connect to the server" <<<"$VERSION_OUTPUT"; then
+  # Echo as comment to make sure "kubectl completion" etc works in profile
+  echo -e "#WARNING: Wrapper unable to verify server version, using default version $DEFAULT_VERSION.\n"
+  $DEFAULT_CLIENT "$@"
+else
+  $SERVER_VERSION=$(echo $VERSION_OUTPUT | jq ".serverVersion.gitVersion" -r | grep -Po "v\d+.\d+.\d+")
+  CLIENT="$CLIENTS_PATH/$SERVER_VERSION"
+  #Download client if we dont have it
+  if [ ! -f "$CLIENT" ]; then
+        downloadClient "$SERVER_VERSION"
+  fi
+  $CLIENT "$@"
 fi
 
-SERVER_VERSION=$($DEFAULT_CLIENT version -o json | jq ".serverVersion.gitVersion" -r | grep -Po "v\d+.\d+.\d+")
-CLIENT="$CLIENTS_PATH/$SERVER_VERSION"
-
-#Download client if we dont have it
-if [ ! -f "$CLIENT" ]; then
-	downloadClient "$SERVER_VERSION"
-fi
-
-$CLIENT "$@"
 exit $?
