@@ -9,8 +9,13 @@ function downloadClient {
 	chmod +x "$CLIENTS_PATH/$1"
 }
 
+function defaultClient {
+	$DEFAULT_CLIENT "$@"
+	exit $?
+}
+
 if ! [ -x "$(command -v jq)" ]; then
-  echo 'Error: jq is not installed. Install it with your favorite package manager' >&2
+  echo 'kubectl wrapper error: jq is not installed. Install it with your favorite package manager' >&2
   exit 1
 fi
 
@@ -20,11 +25,20 @@ if [ ! -f "$DEFAULT_CLIENT" ]; then
 fi
 
 if [ "$1" == "config" ]; then
-	$DEFAULT_CLIENT "$@"
-	exit $?
+	defaultClient $@
+fi
+if [ "$1" == "help" ]; then
+	defaultClient $@
+fi
+if [[ "$@" == *'--help'* ]];then
+	defaultClient $@
 fi
 
 SERVER_VERSION=$($DEFAULT_CLIENT version -o json | jq ".serverVersion.gitVersion" -r | grep -Po "v\d+.\d+.\d+")
+if [ -z "$SERVER_VERSION" ]; then
+	echo "kubectl wrapper error: Unable to get version from cluster, aborting."
+	exit 1
+fi
 CLIENT="$CLIENTS_PATH/$SERVER_VERSION"
 
 #Download client if we dont have it
