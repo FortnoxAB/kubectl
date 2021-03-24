@@ -10,8 +10,7 @@ function downloadClient {
 }
 
 function defaultClient {
-	$DEFAULT_CLIENT "$@"
-	exit $?
+	exec $DEFAULT_CLIENT "$@"
 }
 
 if ! [ -x "$(command -v jq)" ]; then
@@ -46,5 +45,4 @@ if [ ! -f "$CLIENT" ]; then
 	downloadClient "$SERVER_VERSION"
 fi
 
-$CLIENT "$@"
-exit $?
+exec $CLIENT "$@"
