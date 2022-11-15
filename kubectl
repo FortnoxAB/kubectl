@@ -1,11 +1,15 @@
 #!/bin/bash
-DEFAULT_VERSION="v1.17.11"
+DEFAULT_VERSION="v1.22.15"
 CLIENTS_PATH="$HOME/.kubectl"
 DEFAULT_CLIENT="$CLIENTS_PATH/$DEFAULT_VERSION"
+OS_ARCH="linux/amd64"
 
 function downloadClient {
 	mkdir -p "$CLIENTS_PATH"
-	wget -O "$CLIENTS_PATH/$1" "https://storage.googleapis.com/kubernetes-release/release/$1/bin/linux/amd64/kubectl"
+	if [[ $(uname -s) == "Darwin" ]] && [[ $(uname -m) == "arm64" ]]; then
+		OS_ARCH="darwin/arm64"
+	fi
+	wget -O "$CLIENTS_PATH/$1" "https://storage.googleapis.com/kubernetes-release/release/$1/bin/$OS_ARCH/kubectl"
 	chmod +x "$CLIENTS_PATH/$1"
 }
 
